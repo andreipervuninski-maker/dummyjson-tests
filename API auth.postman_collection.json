@@ -1,0 +1,197 @@
+{
+  "info": {
+    "_postman_id": "9ee9cef2-3f11-4385-a275-ca6fd57d094c",
+    "name": "API auth",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "17704590",
+    "_collection_link": "https://go.postman.co/collection/17704590-9ee9cef2-3f11-4385-a275-ca6fd57d094c?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "https://dummyjson.com/auth/login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Извлекаем данные ответа\r",
+              "const jsonData = pm.response.json();\r",
+              "\r",
+              "// Тест 1: Проверка статуса\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "// Тест 2: Проверка наличия токенов\r",
+              "pm.test(\"Response contains accessToken and refreshToken\", function () {\r",
+              "    pm.expect(jsonData).to.have.property('accessToken');\r",
+              "    pm.expect(jsonData).to.have.property('refreshToken');\r",
+              "});\r",
+              "\r",
+              "// Сохраняем токены в переменные коллекции (для использования в других запросах)\r",
+              "if (pm.response.code === 200) {\r",
+              "    pm.collectionVariables.set(\"accessToken\", jsonData.accessToken);\r",
+              "    pm.collectionVariables.set(\"refreshToken\", jsonData.refreshToken);\r",
+              "}\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"emilys\",\n    \"password\": \"emilyspass\",\n    \"expiresInMins\": 30\n  }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://dummyjson.com/auth/login",
+          "protocol": "https",
+          "host": [
+            "dummyjson",
+            "com"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://dummyjson.com/auth/me",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Тест 1: статус 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "// Тест 2: тело содержит id и username (проверяем, что это не пустые значения)\r",
+              "pm.test(\"Response contains user id and username\", function () {\r",
+              "    const jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.have.property('id');\r",
+              "    pm.expect(jsonData).to.have.property('username');\r",
+              "    pm.expect(jsonData.id).to.be.a('number');\r",
+              "    pm.expect(jsonData.username).to.be.a('string');\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "https://dummyjson.com/auth/me",
+          "protocol": "https",
+          "host": [
+            "dummyjson",
+            "com"
+          ],
+          "path": [
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://dummyjson.com/auth/refresh",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Тест 1: статус ответа 200\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "// Тест 2: в теле присутствует новый accessToken и refreshToken\r",
+              "pm.test(\"Response contains new accessToken and refreshToken\", function () {\r",
+              "    const jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.have.property('accessToken');\r",
+              "    pm.expect(jsonData).to.have.property('refreshToken'); \r",
+              "   \r",
+              "});\r",
+              "\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"refreshToken\": \"{{refreshToken}}\",\n    \"expiresInMins\": 30\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://dummyjson.com/auth/refresh",
+          "protocol": "https",
+          "host": [
+            "dummyjson",
+            "com"
+          ],
+          "path": [
+            "auth",
+            "refresh"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    }
+  ]
+}
